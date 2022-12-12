@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 7459900742284146961}
   - component: {fileID: 7459900742284146960}
   - component: {fileID: 7459900742284146963}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Tile
-  m_TagString: Untagged
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -110,5 +110,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e1246d6a61c4c4b8e0d012a409053d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  originalMaterial: {fileID: 2100000, guid: f0980fe6fa70f93468d9b9b319732318, type: 2}
-  player: {fileID: 3586595286970614332, guid: 2982b574b7fcb9745949226a366589a4, type: 3}
+  _originalMaterial: {fileID: 2100000, guid: f0980fe6fa70f93468d9b9b319732318, type: 2}
+  walkable: 0

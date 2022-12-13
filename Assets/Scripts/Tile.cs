@@ -21,6 +21,29 @@ public class Tile : MonoBehaviour
     private Tile _parent = null;
     private int _distance = 0;
 
+    // For A*
+    private float _f = 0;
+    private float _g = 0;
+    private float _h = 0;
+
+    public float F
+    {
+        get { return _f; }
+        set { _f = value; }
+    }
+
+    public float G
+    {
+        get { return _g; }
+        set { _g = value; }
+    }
+
+    public float H
+    {
+        get { return _h; }
+        set { _h = value; }
+    }
+
     public Piece PieceOnTile
     {
         get { return _pieceOnTile; }
@@ -144,19 +167,21 @@ public class Tile : MonoBehaviour
         _visited = false;
         _parent = null;
         _distance = 0;
+
+        _f = _g = _h = 0;
     }
 
-    public void FindNeighbors(float jumpHeight)
+    public void FindNeighbors(float jumpHeight, Tile target)
     {
         Reset();
 
-        CheckTile(Vector3.forward, jumpHeight);
-        CheckTile(Vector3.back, jumpHeight);
-        CheckTile(Vector3.left, jumpHeight);
-        CheckTile(Vector3.right, jumpHeight);
+        CheckTile(Vector3.forward, jumpHeight, target);
+        CheckTile(Vector3.back, jumpHeight, target);
+        CheckTile(Vector3.left, jumpHeight, target);
+        CheckTile(Vector3.right, jumpHeight, target);
     }
 
-    public void CheckTile(Vector3 direction, float jumpHeight)
+    public void CheckTile(Vector3 direction, float jumpHeight, Tile target)
     {
         Vector3 halfExtents = new Vector3(0.25f, (1 + jumpHeight) / 2.0f, 0.25f);
         Collider[] colliders = Physics.OverlapBox(transform.position + direction, halfExtents);
@@ -166,7 +191,7 @@ public class Tile : MonoBehaviour
             Tile tile = item.GetComponent<Tile>();
             if (tile != null && tile.walkable)
             {
-                if(!Physics.Raycast(tile.transform.position, Vector3.up, out RaycastHit hit, 1))
+                if(!Physics.Raycast(tile.transform.position, Vector3.up, out RaycastHit hit, 1) || (tile == target))
                 {
                     _adjacencyList.Add(tile);
                 }

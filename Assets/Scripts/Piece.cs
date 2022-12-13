@@ -25,6 +25,8 @@ public class Piece : MonoBehaviour
     bool _moveToEdge = false;
     Vector3 _jumpTarget;
 
+    Tile actualTargetTile;
+
     Stack<Tile> _path = new();
     Tile _currentTile;
 
@@ -85,18 +87,18 @@ public class Piece : MonoBehaviour
         return tile;
     }
 
-    public void ComputeAdjacencyLists()
+    public void ComputeAdjacencyLists(float jumpHeight, Tile target)
     {
         foreach (GameObject tile in _tiles)
         {
             Tile t = tile.GetComponent<Tile>();
-            t.FindNeighbors(_jumpHeight);
+            t.FindNeighbors(jumpHeight, target);
         }
     }
 
     public void FindSelectableTiles()
     {
-        ComputeAdjacencyLists();
+        ComputeAdjacencyLists(_jumpHeight, null);
         GetCurrentTile();
 
         Queue<Tile> process = new();
@@ -305,10 +307,86 @@ public class Piece : MonoBehaviour
 
             _velocity.y = jumpVelocity * (0.5f + difference / 2.0f);
         }
-    }    
+    }  
+    
+    protected Tile FindEndTile(Tile t)
+    {
+        Stack<Tile> tempPath
+    }
 
     protected void FindPath(Tile target)
     {
         ComputeAdjacencyLists(_jumpHeight, target);
+        GetCurrentTile();
+
+        List<Tile> openList = new();
+        List<Tile> closedList = new();
+
+        openList.Add(_currentTile);
+        // currentTile.parent = ??
+        _currentTile.H = Vector3.Distance(_currentTile.transform.position, target.transform.position);
+        _currentTile.F = _currentTile.H;
+
+        while (openList.Count > 0)
+        {
+            Tile t = FindLowestF(openList);
+
+            closedList.Add(t);
+
+            if (t == target)
+            {
+                actualTargetTile = FindEndTile(t);
+                MoveToTile(actualTargetTile);
+                return;
+            }
+
+            foreach(Tile tile in t.AdjacencyList)
+            {
+                if (closedList.Contains(tile))
+                {
+                    // Do nothing, already processed
+                }
+                else if (openList.Contains(tile))
+                {
+                    float tempG = t.G + Vector3.Distance(tile.transform.position, t.transform.position);
+
+                    if(tempG < tile.G)
+                    {
+                        tile.Parent = t;
+                        tile.G = tempG;
+                        tile.F = tile.G + tile.H;
+                    }
+                }
+                else
+                {
+                    tile.Parent = t;
+
+                    tile.G = t.G + Vector3.Distance(tile.transform.position, t.transform.position);
+                    tile.H = Vector3.Distance(tile.transform.position, target.transform.position);
+                    tile.F = tile.G + tile.H;
+
+                    openList.Add(tile);
+                }
+            }
+        }
+
+        //todo - what do you do if there is no path to the target tile?
+    }
+
+    protected Tile FindLowestF(List<Tile> openList)
+    {
+        Tile lowest = openList[0];
+
+        foreach(Tile t in openList)
+        {
+            if(t.F < lowest.F)
+            {
+                lowest = t;
+            }
+        }
+
+        openList.Remove(lowest);
+
+        return lowest;
     }
 }
